@@ -338,3 +338,42 @@ section.s{padding:clamp(64px,10vw,120px) 0;position:relative}
 .soc{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--surface);color:var(--brand);transition:transform .25s,background .25s,color .25s,border-color .25s}
 .soc:hover{transform:translateY(-4px);background:var(--brand);color:#fff;border-color:var(--brand)}
 .foot .soc{opacity:1}.foot a.soc{padding:0;display:grid}.foot a.soc:hover{transform:translateY(-4px)}
+
+
+/* Mobile navigation and form usability */
+@media (max-width:900px){
+  .top .wrap{height:66px;gap:10px}
+  .brand{gap:9px;min-width:0}
+  .brand .logo{--w:42px}
+  .brand span.tx{display:block;font-size:.95rem;white-space:nowrap}
+  .brand small{font-size:.55rem;letter-spacing:.08em}
+  .nav{top:66px;max-height:calc(100svh - 66px);overflow-y:auto;padding:12px var(--gut) max(22px,env(safe-area-inset-bottom))}
+  .tools{margin-inline-start:auto;flex-shrink:0}
+  .lbtn{height:40px;padding:0 10px;font-size:.82rem}
+  .ibtn{height:40px;width:40px}
+}
+@media (max-width:520px){
+  :root{--gut:16px}
+  body{font-size:1rem}
+  .hero.big{min-height:auto;padding:112px 0 54px}
+  .hero.sub{padding:112px 0 48px}
+  .hero-grid{gap:24px}
+  .hero-art{max-width:210px}
+  .hero h1{font-size:clamp(2.35rem,12vw,3.4rem)}
+  .hero.sub h1{font-size:clamp(2.2rem,10vw,3.1rem)}
+  .btns{gap:10px;margin-top:24px}
+  .btn{padding:13px 18px;font-size:.95rem;max-width:100%}
+  .stats{grid-template-columns:1fr 1fr;gap:10px;margin-top:30px}
+  .stat{padding:14px}
+  .bento{grid-template-columns:1fr}
+  .cat{grid-column:1/-1;min-height:180px;padding:22px}
+  .split{gap:12px}
+  .ccard,.panel{padding:20px;border-radius:18px}
+  .panel h2{font-size:1.55rem}
+  .field input,.field select,.field textarea{font-size:16px;padding:13px 14px}
+  .panel form>.btn{width:100%;justify-content:center}
+  .ready{padding:14px}
+  .fabs{inset-inline-end:12px;bottom:max(12px,env(safe-area-inset-bottom));gap:9px}
+  .fab{width:50px;height:50px}
+  .foot{padding:40px 0 90px}
+}
