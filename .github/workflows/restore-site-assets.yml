@@ -1,0 +1,25 @@
+name: Restore website assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/restore-site-assets.yml
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Restore CSS, JavaScript, and logo assets from the source archive
+        run: |
+          unzip -o bvtcs-website-v3.zip 'assets/*' 'css/*' 'js/*' -d .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets css js
+          git rm .github/workflows/restore-site-assets.yml
+          git commit -m "Restore missing website assets"
+          git push origin HEAD:main
