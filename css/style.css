@@ -377,3 +377,13 @@ section.s{padding:clamp(64px,10vw,120px) 0;position:relative}
   .fab{width:50px;height:50px}
   .foot{padding:40px 0 90px}
 }
+
+
+/* Final responsive safeguard: category cards must never form a clipped horizontal row on touch-sized screens */
+@media (max-width: 900px) {
+  .bento { grid-template-columns: minmax(0, 1fr) !important; width: 100%; }
+  .bento > .cat { grid-column: 1 / -1 !important; width: 100%; min-width: 0; }
+}
+@media (max-width: 900px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+}
