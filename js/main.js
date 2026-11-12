@@ -137,12 +137,7 @@ function renderLangs(){
   var l=$('langs');if(!l)return;
   l.innerHTML=LANGS.map(function(x,i){return '<button type="button" lang="'+x.c+'" dir="'+x.d+'" data-setlang="'+x.c+'" aria-current="'+(i===li)+'">'+x.n+'</button>'}).join('');
 }
-function renderForm(){
-  var s=$('f-service');if(!s)return;
-  var v=s.value;
-  s.innerHTML='<option value="">'+esc(t('f_pick'))+'</option>'+SV.map(function(x,i){return '<option value="'+i+'">'+esc(x.n[li])+'</option>'}).join('');
-  s.value=v;
-}
+function renderForm(){ return; }
 
 /* ---------- language ---------- */
 function applyText(){
@@ -207,13 +202,10 @@ document.addEventListener('pointermove',function(e){
 var form=$('req');
 if(form)form.addEventListener('submit',function(e){
   e.preventDefault();
-  var name=$('f-name').value.trim(),ph=$('f-phone').value.trim(),si=$('f-service').value,m=$('f-msg').value.trim();
-  var lines=['Hello Bright Vision,','I would like to make an enquiry.'];
-  if(si!=='')lines.push('Service: '+SV[+si].n[0]+(li?' ('+SV[+si].n[li]+')':''));
-  if(name)lines.push('Name: '+name);
-  if(ph)lines.push('Phone: '+ph);
+  var name=$('f-name').value.trim(),ph=$('f-phone').value.trim(),m=$('f-msg').value.trim();
+  if(!name||!ph||!m){form.reportValidity();return}
+  var lines=['Hello Bright Vision,','I would like to make an enquiry.','Name: '+name,'Contact number: '+ph,'Query: '+m];
   if(li)lines.push('My language: '+LANGS[li].g2);
-  if(m)lines.push(m);
   var msg=lines.join('\n');
   $('ready').innerHTML='<div class="ready"><b>'+esc(t('f_ready'))+'</b><pre>'+esc(msg)+'</pre><div class="row"><a class="btn wa sm" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+WAI+esc(t('f_open'))+'</a><button type="button" class="btn line sm" data-copy="'+esc(msg)+'">'+esc(t('copy'))+'</button></div></div>';
 });
