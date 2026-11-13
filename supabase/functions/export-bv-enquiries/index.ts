@@ -67,11 +67,15 @@ Deno.serve(async (req: Request) => {
   sheet.autoFilter = { from: "A1", to: "H1" };
   sheet.getRow(1).font = { bold: true };
   const bytes = await workbook.xlsx.writeBuffer();
-  await admin.from("bv_admin_audit_log").insert({
+  const { error: auditError } = await admin.from("bv_admin_audit_log").insert({
     admin_user_id: authData.user.id,
     action: "export_enquiries",
     record_count: rows.length,
   });
+  if (auditError) {
+    console.error("BVTCS export audit logging failed", auditError);
+    return new Response("Export audit logging failed", { status: 500, headers: { "cache-control": "no-store" } });
+  }
   return new Response(bytes, {
     headers: {
       "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
