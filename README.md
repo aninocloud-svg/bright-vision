@@ -17,3 +17,6 @@ Static website (HTML, CSS, vanilla JavaScript). No build step.
 
 ## Publish on GitHub Pages
 Push all files to a repo, then Settings → Pages → Deploy from branch `main` / root.
+
+## Security work
+See [SECURITY.md](SECURITY.md) for the BVTCS security release checklist, database migration, Edge Function deployment, MFA setup, and rollback guidance.
