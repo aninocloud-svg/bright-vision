@@ -48,8 +48,7 @@ Deno.serve(async (req: Request) => {
       return response({ error: "Please enter a valid email address." }, 400, origin);
     }
 
-    const ip = req.headers.get("cf-connecting-ip") ??
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const ip = req.headers.get("cf-connecting-ip") ?? "unknown";
     const ipHash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + SERVICE_KEY.slice(-16)));
     const fingerprint = Array.from(new Uint8Array(ipHash)).map(x => x.toString(16).padStart(2, "0")).join("");
     const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
