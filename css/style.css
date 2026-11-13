@@ -387,3 +387,8 @@ section.s{padding:clamp(64px,10vw,120px) 0;position:relative}
 @media (max-width: 900px) {
   html, body { max-width: 100%; overflow-x: clip; }
 }
+
+/* BVTCS admin entry point */
+.admin-footer-link{display:inline-flex!important;align-items:center;gap:8px;margin-top:14px;padding:9px 13px;border:1px solid currentColor;border-radius:999px;font-size:12px;font-weight:700}
+#req .field select{width:100%;min-height:48px;padding:12px 14px;border:1px solid var(--line,#ddd);border-radius:10px;background:#fff;color:inherit;font:inherit}
+#req .hp-field{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
