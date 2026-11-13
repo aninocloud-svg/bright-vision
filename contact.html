@@ -61,8 +61,11 @@
   <div class="panel rv"><h2 data-t="form_h">Send a request</h2>
     <form id="req" novalidate>
       <div class="field"><label for="f-name" data-t="f_name">Your name</label><input id="f-name" name="name" type="text" autocomplete="name" required></div>
-      <div class="field"><label for="f-phone" data-t="f_phone">Your phone number</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" dir="ltr" required></div>
-      <div class="field"><label for="f-msg" data-t="f_query">Your query</label><textarea id="f-msg" name="query" rows="5" required></textarea></div>
+      <div class="field"><label for="f-phone" data-t="f_phone">Your phone number</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" dir="ltr" maxlength="32" required></div>
+      <div class="field"><label for="f-email">Your email (optional)</label><input id="f-email" name="email" type="email" autocomplete="email" maxlength="254"></div>
+      <div class="field"><label for="f-service">What do you need help with?</label><select id="f-service" name="service" required><option value="">Select a service</option><option>Company services</option><option>Visa and QID services</option><option>Banking services</option><option>Vehicle services</option><option>Passport services</option><option>Printing and documentation</option><option>Graphic and web design</option><option>General enquiry</option></select></div>
+      <div class="hp-field" aria-hidden="true"><label for="f-website">Leave this field empty</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <div class="field"><label for="f-msg" data-t="f_query">Your query</label><textarea id="f-msg" name="query" rows="5" maxlength="4000" required></textarea></div>
       <button class="btn wa" type="submit"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.6-4.1A8 8 0 1 1 20 11.5z"/><path d="M9.2 8.8c.3 2.4 2.6 4.8 5.2 5.4l1.1-1.2-1.8-1-.8.7c-.9-.4-1.7-1.2-2-2.1l.7-.8-1-1.8z"/></svg><span data-t="f_send">Send enquiry on WhatsApp</span></button>
       <div id="ready"></div>
     </form>
