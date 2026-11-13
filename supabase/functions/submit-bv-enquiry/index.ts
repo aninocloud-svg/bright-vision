@@ -21,7 +21,7 @@ function response(body: unknown, status = 200, origin = "") {
     headers.set("access-control-allow-methods", "POST, OPTIONS");
     headers.set("access-control-allow-headers", "authorization, apikey, content-type");
   }
-  return new Response(JSON.stringify(body), { status, headers });
+  return new Response(status === 204 ? null : JSON.stringify(body), { status, headers });
 }
 
 Deno.serve(async (req: Request) => {
@@ -29,11 +29,10 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return response({}, 204, origin);
   if (req.method !== "POST") return response({ error: "Method not allowed" }, 405, origin);
   if (!ALLOWED.has(origin)) return response({ error: "Origin not allowed" }, 403, origin);
-  const length = Number(req.headers.get("content-length") ?? 0);
-  if (length > 12000) return response({ error: "Request too large" }, 413, origin);
-
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+    if (new TextEncoder().encode(rawBody).length > 12000) return response({ error: "Request too large" }, 413, origin);
+    const body = JSON.parse(rawBody);
     if (typeof body.website === "string" && body.website.trim()) return response({ ok: true }, 200, origin);
     const name = String(body.customer_name ?? "").trim();
     const phone = String(body.customer_phone ?? "").trim();
