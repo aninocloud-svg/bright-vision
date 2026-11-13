@@ -8,7 +8,31 @@ DROP POLICY IF EXISTS "Public can submit enquiries" ON public.bv_customer_enquir
 REVOKE ALL ON TABLE public.bv_customer_enquiries FROM anon, authenticated;
 GRANT SELECT, UPDATE ON TABLE public.bv_customer_enquiries TO authenticated;
 
--- Keep the existing BVTCS admin SELECT/UPDATE policies in place.
+-- Require MFA at the database boundary too. A hidden/guarded admin page alone
+-- is not a security boundary: authenticated users can call the REST API directly.
+DROP POLICY IF EXISTS "Bright Vision admin can update enquiries" ON public.bv_customer_enquiries;
+DROP POLICY IF EXISTS "Bright Vision admin can view enquiries" ON public.bv_customer_enquiries;
+
+CREATE POLICY "Bright Vision admin can view enquiries"
+ON public.bv_customer_enquiries
+FOR SELECT TO authenticated
+USING (
+  lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@bvtcs.com.qa'
+  AND coalesce(auth.jwt() ->> 'aal', '') = 'aal2'
+);
+
+CREATE POLICY "Bright Vision admin can update enquiries"
+ON public.bv_customer_enquiries
+FOR UPDATE TO authenticated
+USING (
+  lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@bvtcs.com.qa'
+  AND coalesce(auth.jwt() ->> 'aal', '') = 'aal2'
+)
+WITH CHECK (
+  lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@bvtcs.com.qa'
+  AND coalesce(auth.jwt() ->> 'aal', '') = 'aal2'
+);
+
 -- No DELETE permission is granted to browser roles.
 
 CREATE TABLE IF NOT EXISTS public.bv_submission_rate_limits (
