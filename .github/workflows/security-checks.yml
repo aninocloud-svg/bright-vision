@@ -1,0 +1,33 @@
+name: BVTCS security checks
+on:
+  push:
+    branches: ["security/**"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check browser JavaScript syntax
+        run: |
+          for file in js/*.js; do node --check "$file"; done
+      - name: Check required security files
+        run: |
+          test -f admin.html
+          test -f js/admin.js
+          test -f js/bv-supabase-config.js
+          test -f supabase/functions/submit-bv-enquiry/index.ts
+          test -f supabase/functions/export-bv-enquiries/index.ts
+          test -f supabase/migrations/202611130001_bvtcs_security_hardening.sql
+      - name: Check browser bundle does not contain service-role credentials
+        run: |
+          if grep -R -nE 'service_role.{0,80}(eyJ|sb_secret_)|SUPABASE_SERVICE_ROLE_KEY.{0,80}(eyJ|sb_secret_)' --include='*.js' --include='*.html' .; then
+            echo "Potential server credential found in browser files"
+            exit 1
+          fi
