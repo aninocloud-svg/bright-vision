@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import * as XLSX from "npm:xlsx@0.18.5";
+import ExcelJS from "npm:exceljs@4.4.0";
 
 const url = Deno.env.get("SUPABASE_URL")!;
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -19,7 +19,8 @@ Deno.serve(async (req: Request) => {
   }
   // Require an MFA-authenticated session, not password-only login.
   try {
-    const claims = JSON.parse(atob(token.split(".")[1]));
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const claims = JSON.parse(atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, "=")));
     if (claims.aal !== "aal2") return new Response("MFA verification required", { status: 403 });
   } catch {
     return new Response("Unauthorized", { status: 401 });
@@ -38,7 +39,7 @@ Deno.serve(async (req: Request) => {
     return /^[\s]*[=+@-]/.test(s) ? "'" + s : s;
   };
   const rows = (data ?? []).map((r: Record<string, unknown>) => ({
-    "Date": r.created_at ? new Date(String(r.created_at)).toISOString().slice(0, 10) : "",
+    "Date": r.created_at ? new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Qatar", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(String(r.created_at))) : "",
     "Time (Qatar)": r.created_at ? new Date(String(r.created_at)).toLocaleTimeString("en-GB", { timeZone: "Asia/Qatar" }) : "",
     "Customer Name": safeCell(r.customer_name),
     "Customer Number": safeCell(r.customer_phone),
@@ -47,11 +48,25 @@ Deno.serve(async (req: Request) => {
     "Inquiry": safeCell(r.inquiry),
     "Status": safeCell(r.status),
   }));
-  const workbook = XLSX.utils.book_new();
-  const sheet = XLSX.utils.json_to_sheet(rows);
-  sheet["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 26 }, { wch: 20 }, { wch: 30 }, { wch: 28 }, { wch: 60 }, { wch: 16 }];
-  XLSX.utils.book_append_sheet(workbook, sheet, "Customer Enquiries");
-  const bytes = XLSX.write(workbook, { type: "array", bookType: "xlsx" });
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Bright Vision Trading, Contracting & Services";
+  workbook.created = new Date();
+  const sheet = workbook.addWorksheet("Customer Enquiries");
+  sheet.columns = [
+    { header: "Date", key: "Date", width: 14 },
+    { header: "Time (Qatar)", key: "Time (Qatar)", width: 14 },
+    { header: "Customer Name", key: "Customer Name", width: 26 },
+    { header: "Customer Number", key: "Customer Number", width: 20 },
+    { header: "Customer Email", key: "Customer Email", width: 30 },
+    { header: "Service / Inquiry Type", key: "Service / Inquiry Type", width: 28 },
+    { header: "Inquiry", key: "Inquiry", width: 60 },
+    { header: "Status", key: "Status", width: 16 },
+  ];
+  sheet.addRows(rows);
+  sheet.views = [{ state: "frozen", ySplit: 1 }];
+  sheet.autoFilter = { from: "A1", to: "H1" };
+  sheet.getRow(1).font = { bold: true };
+  const bytes = await workbook.xlsx.writeBuffer();
   await admin.from("bv_admin_audit_log").insert({
     admin_user_id: authData.user.id,
     action: "export_enquiries",
