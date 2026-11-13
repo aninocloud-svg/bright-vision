@@ -200,14 +200,25 @@ document.addEventListener('pointermove',function(e){
   var r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px');
 });
 var form=$('req');
-if(form)form.addEventListener('submit',function(e){
+if(form)form.addEventListener('submit',async function(e){
   e.preventDefault();
   var name=$('f-name').value.trim(),ph=$('f-phone').value.trim(),m=$('f-msg').value.trim();
-  if(!name||!ph||!m){form.reportValidity();return}
-  var lines=['Hello Bright Vision,','I would like to make an enquiry.','Name: '+name,'Contact number: '+ph,'Query: '+m];
+  var email=$('f-email').value.trim(),service=$('f-service').value;
+  if(!name||!ph||!m||!service){form.reportValidity();return}
+  var lines=['Hello Bright Vision,','I would like to make an enquiry.','Name: '+name,'Contact number: '+ph,'Email: '+(email||'Not provided'),'Service: '+service,'Query: '+m];
   if(li)lines.push('My language: '+LANGS[li].g2);
-  var msg=lines.join('\n');
-  $('ready').innerHTML='<div class="ready"><b>'+esc(t('f_ready'))+'</b><pre>'+esc(msg)+'</pre><div class="row"><a class="btn wa sm" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+WAI+esc(t('f_open'))+'</a><button type="button" class="btn line sm" data-copy="'+esc(msg)+'">'+esc(t('copy'))+'</button></div></div>';
+  var msg=lines.join('\n'),button=form.querySelector('[type="submit"]');
+  button.disabled=true;button.setAttribute('aria-busy','true');
+  $('ready').textContent='Sending your enquiry securely…';
+  try{
+    var client=window.supabase.createClient(window.BVTCS_SUPABASE.url,window.BVTCS_SUPABASE.anonKey);
+    var {data,error}=await client.functions.invoke('submit-bv-enquiry',{body:{customer_name:name,customer_phone:ph,customer_email:email,service_selected:service,inquiry:m,website:$('f-website').value}});
+    if(error||!data||data.ok!==true)throw error||new Error('Submission was not confirmed');
+    $('ready').innerHTML='<div class="ready"><b>Thank you. Your enquiry has been securely received by Bright Vision.</b><p>Our team will contact you shortly.</p><div class="row"><a class="btn wa sm" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+WAI+' Continue on WhatsApp</a></div></div>';
+    form.reset();
+  }catch(err){
+    $('ready').textContent='We could not save your enquiry. Please try again or contact us on WhatsApp.';
+  }finally{button.disabled=false;button.removeAttribute('aria-busy')}
 });
 
 /* scroll: progress, header, hero parallax */
@@ -247,6 +258,12 @@ function startLoader(){
     loader.querySelectorAll('[data-depth]').forEach(function(el){var d=+el.getAttribute('data-depth');el.style.transform='translate('+(x*d)+'px,'+(y*d)+'px)'});
   });
 }
+/* Add administrator entry point to every public-page footer. */
+document.querySelectorAll('.foot .wrap').forEach(function(footer){
+  if(!footer.querySelector('.admin-footer-link')){
+    var link=document.createElement('a');link.href='admin.html';link.className='admin-footer-link';link.textContent='Administrator login';link.rel='nofollow';footer.appendChild(link);
+  }
+});
 /* start */
 $('yr').textContent=new Date().getFullYear();
 var qs=new URLSearchParams(location.search);
