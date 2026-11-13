@@ -58,6 +58,5 @@ $("export").addEventListener("click",async()=>{
  let blob;if(data instanceof Blob)blob=data;else if(data instanceof ArrayBuffer)blob=new Blob([data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});else{note("The export response was not a workbook.",true);return}
  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="BVTCS-Customer-Enquiries.xlsx";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);$("status").textContent="Excel workbook downloaded securely.";
 });
-client.auth.onAuthStateChange(()=>{setTimeout(()=>renderSession(),0)});
 renderSession().catch(()=>note("Could not initialize the administrator session.",true));
 })();
